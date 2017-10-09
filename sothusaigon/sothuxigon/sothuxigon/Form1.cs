@@ -43,12 +43,31 @@ namespace sothuxigon
         {
             if (e.Data.GetDataPresent(DataFormats.Text))
             {
-                ListBox lb = (ListBox)sender;
-                lb.Items.Add(e.Data.GetData(DataFormats.Text));
+                bool test = false;
+                for (int i = 0; i < lstDanhSach.Items.Count; i++)
+                {
+                    string st = lstDanhSach.Items[i].ToString();
+                    string data = e.Data.GetData(DataFormats.Text).ToString();
+                    if (data == st)
+                        test = true;
+                }
+                if (test == false)
+                {
+                    int newIndex = lstDanhSach.IndexFromPoint(lstDanhSach.PointToClient(new Point(e.X, e.Y)));
+                    lstDanhSach.Items.Remove(e.Data.GetData(DataFormats.Text));
+                    if (newIndex != -1)
+                        lstDanhSach.Items.Insert(newIndex, e.Data.GetData(DataFormats.Text));
+                    else
+                    {
+                        ListBox lb = (ListBox)sender;
+                        lb.Items.Add(e.Data.GetData(DataFormats.Text));
+                    }
+                }
             }
 
 
         }
+        bool luu = false;
         private void Save(object sender, EventArgs e)
         {
 
@@ -59,6 +78,8 @@ namespace sothuxigon
                 write.WriteLine(item.ToString());
 
             write.Close();
+            luu = true;
+
 
         }
 
@@ -100,6 +121,28 @@ namespace sothuxigon
                                           DateTime.Now.Month,
                                           DateTime.Now.Year);
         }
-       
+        private void btnXoa_Click(object sender, EventArgs e)
+        {
+            lstDanhSach.Items.Remove(lstDanhSach.SelectedItem);
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (luu == false)
+            {
+                DialogResult kq = MessageBox.Show("Bạn có muốn lưu danh sách?", "THÔNG BÁO", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                if (kq == DialogResult.Yes)
+                {
+                   Save(sender, e);
+                    e.Cancel = false;
+                }
+                else if (kq == DialogResult.No)
+                    e.Cancel = false;
+                else
+                    e.Cancel = true;
+            }
+            else
+                mnuClose_Click(sender, e);
+        }
     }
 }
